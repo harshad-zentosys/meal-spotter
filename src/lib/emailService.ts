@@ -1,6 +1,7 @@
 // Email service utility - currently mock implementation
 // You can extend this to use actual email providers
 
+
 interface EmailOptions {
   to: string;
   subject: string;
@@ -8,7 +9,7 @@ interface EmailOptions {
   text?: string;
 }
 
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 import { configDotenv } from "dotenv";
 
 // Load environment variables
@@ -24,7 +25,8 @@ class MockEmailService {
     console.log("Content:", options.text || options.html);
     console.log("---");
 
-    let transporter = nodemailer.createTransport({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
       secure: false,
@@ -35,7 +37,7 @@ class MockEmailService {
         user: process.env.SMTP_USERNAME,
         pass: process.env.SMTP_PASSWORD,
       },
-    });
+    } as any);
 
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM_EMAIL,
