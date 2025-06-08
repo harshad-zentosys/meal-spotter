@@ -1,61 +1,88 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
+import Subscription from "@/models/Subscription";
 import Review from "@/models/Review";
-import User from "@/models/User";
+import { SentimentIntensityAnalyzer } from "vader-sentiment"; // use locally
+import mongoose from "mongoose";
 
-// GET /api/reviews/[messId] - Get all reviews for a specific mess
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ messId: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: { messId: string } }) {
   try {
-    const { messId } = await params;
-
-    if (!messId) {
-      return NextResponse.json(
-        { error: "Mess ID is required" },
-        { status: 400 }
-      );
-    }
-
     await connectToDatabase();
+    const { messId } = await params;
+    console.log("messId", messId);
 
-    // Fetch reviews for this mess with user details
-    const reviews = await Review.find({ messId })
-      .populate({
-        path: "userId",
-        select: "name", // Only select the name field from User
-        model: User,
-      })
-      .sort({ createdAt: -1 }) // Sort by newest first
-      .exec();
+    const subs = await Subscription.find({ messId });
+    const reviews = await Review.find({ messId }).sort({ createdAt: -1 }).limit(10);
 
-    // Calculate average rating
-    const averageRating =
-      reviews.length > 0
-        ? reviews.reduce((sum, review) => sum + review.rating, 0) /
-          reviews.length
-        : 0;
+    const sentiments = reviews.map(r =>
+      SentimentIntensityAnalyzer.polarity_scores(r.comment || "")
+    );
+    console.log("sentiments", sentiments);
 
-    return NextResponse.json(
+    const avgSentiment = sentiments.reduce((sum, s) => sum + s.compound, 0) / sentiments.length;
+    const topComment = reviews.find(r => SentimentIntensityAnalyzer.polarity_scores(r.comment).compound > 0.6)?.comment;
+
+    const topPlans = await Subscription.aggregate([
+      { $match: { messId: new mongoose.Types.ObjectId(messId) } },
+      { $group: { _id: "$planName", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 3 }
+    ]);
+
+    const now = new Date();
+    const lastMonth = new Date();
+    lastMonth.setMonth(now.getMonth() - 1);
+
+    const currentMonthSubs = await Subscription.countDocuments({ messId, startDate: { $gte: new Date(now.getFullYear(), now.getMonth(), 1) } });
+    const lastMonthSubs = await Subscription.countDocuments({ messId, startDate: { $gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1), $lt: new Date(now.getFullYear(), now.getMonth(), 1) } });
+
+    const growthRate = lastMonthSubs > 0 ? (((currentMonthSubs - lastMonthSubs) / lastMonthSubs) * 100).toFixed(1) : 0;
+
+    const revenueLastMonth = await Subscription.aggregate([
       {
-        reviews: reviews.map((review) => ({
-          id: review._id,
-          rating: review.rating,
-          comment: review.comment,
-          userName: review.userId?.name || "Anonymous",
-          createdAt: review.createdAt,
-        })),
-        averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
-        totalReviews: reviews.length,
+        $match: {
+          messId: new mongoose.Types.ObjectId(messId),
+          startDate: {
+            $gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
+            $lt: new Date(now.getFullYear(), now.getMonth(), 1)
+          }
+        }
       },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-    return NextResponse.json(
-      { error: "Error fetching reviews" },
-      { status: 500 }
-    );
+      { $group: { _id: null, total: { $sum: "$price" } } }
+    ]);
+    const revenue = revenueLastMonth[0]?.total || 0;
+    const predictedRevenue = currentMonthSubs > lastMonthSubs ? revenue * 1.1 : revenue;
+
+    const result = {
+      messId,
+      reviewSentiment: {
+        average: avgSentiment > 0.3 ? "Positive" : avgSentiment < -0.3 ? "Negative" : "Neutral",
+        score: avgSentiment.toFixed(2),
+        topComment: topComment || "No standout review yet"
+      },
+      topPlans,
+      subscriptionTrend: {
+        thisMonth: currentMonthSubs,
+        lastMonth: lastMonthSubs,
+        growthRate
+      },
+      revenue: {
+        predictedRevenueNextMonth: Math.round(predictedRevenue),
+        revenueLastMonth: revenue,
+        revenueGrowthRate: lastMonthSubs > 0 ? (((predictedRevenue - revenue) / revenue) * 100).toFixed(1) : 0
+      },
+      reviews: reviews.map(r => ({
+        id: r._id,
+        rating: r.rating,
+        comment: r.comment,
+        userName: r.userId?.name || "Anonymous",
+        createdAt: r.createdAt
+      }))
+    };
+    console.log("result", result);
+    return NextResponse.json(result, { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Error generating insights" }, { status: 500 });
   }
 }

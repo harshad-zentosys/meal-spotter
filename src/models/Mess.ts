@@ -33,7 +33,8 @@ export interface IMess extends Document {
   name: string;
   type: "veg" | "non-veg" | "both";
   cuisine: string[];
-  location: string;
+  lat: number;
+  lng: number;
   address: string;
   contactNumber: string;
   image?: string;
@@ -66,8 +67,12 @@ const MessSchema = new Schema<IMess>(
         type: String,
       },
     ],
-    location: {
-      type: String,
+    lat: {
+      type: Number,
+      required: false,
+    },
+    lng: {
+      type: Number,
       required: false,
     },
     address: {

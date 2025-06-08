@@ -79,7 +79,8 @@ interface Mess {
   id: string;
   name: string;
   type: "veg" | "non-veg" | "both";
-  location: string;
+  lat: number;
+  lng: number;
   address: string;
   contactNumber: string;
   description: string;
@@ -227,6 +228,8 @@ export default function MessDetailsPage() {
           amount: plan.price * 100,
           currency: "INR",
           order_id: data.razorpayOrderId,
+          name: "Mealspotter - " + mess?.name,
+          description: "Subscription to " + plan.name,
           handler: async function (response: any) {
             console.log(response);
             const subResponse = await fetch("/api/subscriptions/create", {
@@ -430,8 +433,14 @@ export default function MessDetailsPage() {
               <div className="flex items-start gap-2 mt-4 text-muted-foreground">
                 <MapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p>{mess.location}</p>
-                  <p>{mess.address}</p>
+                  <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${mess.lat},${mess.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary transition-colors"
+                  >
+                    <p>{mess.address}</p>
+                  </a>
                 </div>
               </div>
 
@@ -720,10 +729,14 @@ export default function MessDetailsPage() {
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
                     <div>
-                      <p>{mess.location}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {mess.address}
-                      </p>
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${mess.lat},${mess.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary transition-colors"
+                      >
+                        <p>{mess.address}</p>
+                      </a>
                     </div>
                   </div>
                 </div>

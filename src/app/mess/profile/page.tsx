@@ -60,7 +60,8 @@ interface MessProfile {
   name: string;
   type: string;
   cuisine: string[];
-  location: string;
+  lat: number;
+  lng: number;
   address: string;
   contactNumber: string;
   description: string;
@@ -175,7 +176,8 @@ export default function MessProfilePage() {
     // Basic validation
     if (
       !editedProfile?.name ||
-      !editedProfile.location ||
+      !editedProfile.lat ||
+      !editedProfile.lng ||
       !editedProfile.address
     ) {
       setError("Name, location, and address are required");
@@ -190,7 +192,8 @@ export default function MessProfilePage() {
       formData.append("name", editedProfile.name);
       formData.append("type", editedProfile.type);
       formData.append("cuisine", JSON.stringify(editedProfile.cuisine));
-      formData.append("location", editedProfile.location);
+      formData.append("lat", editedProfile.lat as unknown as string);
+      formData.append("lng", editedProfile.lng as unknown as string);
       formData.append("address", editedProfile.address);
       formData.append("contactNumber", editedProfile.contactNumber || "");
       formData.append("description", editedProfile.description || "");
@@ -612,16 +615,30 @@ export default function MessProfilePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Location</label>
+                    <label className="text-sm font-medium">Latitude</label>
                     {isEditing ? (
                       <Input
-                        name="location"
-                        value={editedProfile?.location || ""}
+                        name="lat"
+                        value={editedProfile?.lat || ""}
                         onChange={handleChange}
-                        placeholder="e.g., North Campus"
+                        placeholder="e.g., 23.0225"
                       />
                     ) : (
-                      <p className="text-sm">{profile.location}</p>
+                      <p className="text-sm">{profile.lat || "N/A"}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Longitude</label>
+                    {isEditing ? (
+                      <Input
+                        name="lng"
+                        value={editedProfile?.lng || ""}
+                        onChange={handleChange}
+                        placeholder="e.g., 72.5714"
+                      />
+                    ) : (
+                      <p className="text-sm">{profile.lng || "N/A"}</p>
                     )}
                   </div>
 
@@ -651,7 +668,7 @@ export default function MessProfilePage() {
                         placeholder="e.g., +91 9876543210"
                       />
                     ) : (
-                      <p className="text-sm">{profile.contactNumber}</p>
+                      <p className="text-sm">{profile.contactNumber || "N/A"}</p>
                     )}
                   </div>
 

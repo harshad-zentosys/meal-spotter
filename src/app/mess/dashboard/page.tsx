@@ -27,13 +27,32 @@ import {
   Calendar,
   Users,
   DollarSign,
-  TrendingUp,
   UtensilsCrossed,
   Plus,
   Eye,
   Star,
   MessageSquare,
+  MapPin,
+  AlertTriangle,
+  XCircle,
+  Clock,
+  TimerReset,
+  CalendarDays,
+  GaugeCircle,
+  Timer,
+  ArrowDown,
+  TrendingUp,
+  TrendingDown,
+  Waypoints,
 } from "lucide-react";
+import { StatsCard } from "@/components/comman/statsCard";
+import { PlanDistributionCard } from "@/components/comman/PlanDistributionCard";
+import { SubscriptionTrendChart } from "@/components/comman/SubscriptionTrendChart";
+import { SubscriptionStatusChart } from "@/components/comman/SubscriptionStatusChart";
+import { SentimentCard } from "@/components/comman/SentimentCard";
+import { ArrowUp } from "lucide-react";
+const COLORS = ['#f97316', '#34d399', '#60a5fa', '#facc15', '#f87171'];
+
 
 // Type definitions
 interface MenuItem {
@@ -85,6 +104,21 @@ interface SubscriptionStats {
 interface ReviewStats {
   averageRating: number;
   totalReviews: number;
+  reviewSentiment: {
+    average: string;
+    score: number;
+    topComment: string;
+  };
+  topPlans: Array<{
+    _id: string;
+    name: string;
+    count: number;
+  }>;
+  subscriptionTrend: {
+    thisMonth: number;
+    lastMonth: number;
+    growthRate: number;
+  };
   recentReviews: Array<{
     id: string;
     rating: number;
@@ -92,6 +126,11 @@ interface ReviewStats {
     userName: string;
     createdAt: string;
   }>;
+  revenue: {
+    predictedRevenueNextMonth: number;
+    revenueLastMonth: number;
+    revenueGrowthRate: number;
+  }
 }
 
 interface MessProfile {
@@ -100,7 +139,8 @@ interface MessProfile {
   name: string;
   type: "veg" | "non-veg" | "both";
   cuisine: string[];
-  location: string;
+  lat: number;
+  lng: number;
   address: string;
   contactNumber: string;
   plans: Plan[];
@@ -110,18 +150,65 @@ interface MessProfile {
   __v: number;
 }
 
+interface Stats {
+  totalSubscriptions: number;
+  activeSubscriptions: number;
+  expiredSubscriptions: number;
+  cancelledSubscriptions: number;
+  upcomingSubscriptions: number;
+  newSubscriptionsThisMonth: number;
+  totalRevenue: number;
+  monthlyRevenue: number;
+  avgSubscriptionPrice: number;
+  avgSubscriptionDuration: number;
+  planDistribution: any[];
+  monthlyStats: any[];
+  statusDistribution: any[];
+  repeatUsers: number;
+  nearExpirySubscriptions: number;
+};
+
+
 export default function MessDashboardPage() {
   const [profile, setProfile] = useState<MessProfile | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [stats, setStats] = useState<SubscriptionStats>({
-    total: 0,
-    active: 0,
-    revenue: 0,
+  const [stats, setStats] = useState<Stats>({
+    totalSubscriptions: 0,
+    activeSubscriptions: 0,
+    monthlyRevenue: 0,
+    nearExpirySubscriptions: 0,
+    newSubscriptionsThisMonth: 0,
+    cancelledSubscriptions: 0,
+    expiredSubscriptions: 0,
+    upcomingSubscriptions: 0,
+    totalRevenue: 0,
+    avgSubscriptionPrice: 0,
+    avgSubscriptionDuration: 0,
+    planDistribution: [],
+    monthlyStats: [],
+    statusDistribution: [],
+    repeatUsers: 0,
   });
   const [reviewStats, setReviewStats] = useState<ReviewStats>({
     averageRating: 0,
     totalReviews: 0,
     recentReviews: [],
+    reviewSentiment: {
+      average: "",
+      score: 0,
+      topComment: "",
+    },
+    subscriptionTrend: {
+      thisMonth: 0,
+      lastMonth: 0,
+      growthRate: 0,
+    },
+    topPlans: [],
+    revenue: {
+      predictedRevenueNextMonth: 0,
+      revenueLastMonth: 0,
+      revenueGrowthRate: 0,
+    },
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -132,9 +219,10 @@ export default function MessDashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profileResponse, subscriptionsResponse] = await Promise.all([
+        const [profileResponse, subscriptionsResponse, statsResponse] = await Promise.all([
           fetch("/api/mess/profile"),
           fetch("/api/mess/subscriptions"),
+          fetch("/api/mess/stats"),
         ]);
 
         if (profileResponse.ok) {
@@ -153,6 +241,10 @@ export default function MessDashboardPage() {
                   averageRating: reviewData.averageRating,
                   totalReviews: reviewData.totalReviews,
                   recentReviews: reviewData.reviews.slice(0, 3), // Get top 3 recent reviews
+                  reviewSentiment: reviewData.reviewSentiment,
+                  topPlans: reviewData.topPlans,
+                  subscriptionTrend: reviewData.subscriptionTrend,
+                  revenue: reviewData.revenue,
                 });
               }
             } catch (reviewError) {
@@ -167,7 +259,12 @@ export default function MessDashboardPage() {
         if (subscriptionsResponse.ok) {
           const subscriptionsData = await subscriptionsResponse.json();
           setSubscriptions(subscriptionsData.subscriptions);
-          setStats(subscriptionsData.stats);
+          // setStats(subscriptionsData.stats);
+        }
+
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setStats(statsData);
         }
 
         setError("");
@@ -222,9 +319,8 @@ export default function MessDashboardPage() {
       stars.push(
         <Star
           key={i}
-          className={`h-4 w-4 ${
-            i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-          }`}
+          className={`h-4 w-4 ${i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+            }`}
         />
       );
     }
@@ -299,7 +395,24 @@ export default function MessDashboardPage() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Location
                   </p>
-                  <p className="text-lg font-semibold">{profile.location}</p>
+                  <p className="text-lg font-semibold">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${profile.lat},${profile.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {
+                        profile.lat && profile.lng ?
+                          // add map icon and view text 
+                          <span className="flex items-center gap-2 text-blue-500">
+                            <MapPin className="h-4 w-4" />
+                            View on Map
+                          </span>
+                          :
+                          "Not set"
+                      }
+                    </a>
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
@@ -336,78 +449,221 @@ export default function MessDashboardPage() {
           </Card>
         )}
 
-        {/* Stats Cards */}
+
+        {/* Revenue Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Subscriptions
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">
-                {stats.active} currently active
-              </p>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Total Revenue"
+            value={stats.totalRevenue}
+            subtitle={<p className="text-xs text-muted-foreground">from all subscriptions</p>}
+            icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-blue-100"
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Monthly Revenue
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">₹{stats.revenue}</div>
-              <p className="text-xs text-muted-foreground">
-                From active subscriptions
-              </p>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Monthly Revenue"
+            value={stats.monthlyRevenue}
+            subtitle={<p className="text-xs text-muted-foreground">from all subscriptions</p>}
+            icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-fuchsia-100"
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Active Subscriptions
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.active}</div>
+          <StatsCard
+            title="Avg Subscription Price"
+            value={stats.avgSubscriptionPrice}
+            subtitle={<p className="text-xs text-muted-foreground">from all subscriptions</p>}
+            icon={<GaugeCircle className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-yellow-100"
+          />
+
+          <StatsCard
+            title="Avg Subscription Duration"
+            value={stats.avgSubscriptionDuration}
+            subtitle={<p className="text-xs text-muted-foreground">from all subscriptions</p>}
+            icon={<Timer className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-orange-100"
+          />
+
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatsCard
+            title="Total Subscriptions"
+            value={stats.totalSubscriptions}
+            subtitle={
               <p className="text-xs text-muted-foreground">
-                {stats.total > 0
-                  ? `${((stats.active / stats.total) * 100).toFixed(
-                      1
-                    )}% of total`
+                Total number of subscriptions to your mess
+              </p>
+            }
+            icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-orange-100"
+          />
+
+          {/* <StatsCard
+            title="Expired Subscriptions"
+            value={stats.expiredSubscriptions}
+            subtitle={
+              <p className="text-xs text-muted-foreground">
+                {stats.totalSubscriptions > 0
+                  ? `${((stats.expiredSubscriptions / stats.totalSubscriptions) * 100).toFixed(1)}% of total`
                   : "No subscriptions yet"}
               </p>
+            }
+            icon={<AlertTriangle className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-red-100"
+          />
+
+          <StatsCard
+            title="Cancelled Subscriptions"
+            value={stats.cancelledSubscriptions}
+            subtitle={
+              <p className="text-xs text-muted-foreground">
+                {stats.totalSubscriptions > 0
+                  ? `${((stats.cancelledSubscriptions / stats.totalSubscriptions) * 100).toFixed(1)}% of total`
+                  : "No subscriptions yet"}
+              </p>
+            }
+            icon={<XCircle className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-gray-200"
+          />
+
+          <StatsCard
+            title="Upcoming Subscriptions"
+            value={stats.upcomingSubscriptions}
+            subtitle={
+              <p className="text-xs text-muted-foreground">
+                {stats.totalSubscriptions > 0
+                  ? `${((stats.upcomingSubscriptions / stats.totalSubscriptions) * 100).toFixed(1)}% of total`
+                  : "No subscriptions yet"}
+              </p>
+            }
+            icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-blue-100"
+          /> */}
+
+          <StatsCard
+            title="New Subscriptions This Month"
+            value={stats.newSubscriptionsThisMonth}
+            subtitle={
+              <p className="text-xs text-muted-foreground">
+                {stats.totalSubscriptions > 0
+                  ? `${((stats.newSubscriptionsThisMonth / stats.totalSubscriptions) * 100).toFixed(1)}% of total`
+                  : "No subscriptions yet"}
+              </p>
+            }
+            icon={<Plus className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-green-100"
+          />
+
+          <StatsCard
+            title="Near Expiry Subscriptions"
+            value={stats.nearExpirySubscriptions}
+            subtitle={
+              <p className="text-xs text-muted-foreground">
+                {stats.totalSubscriptions > 0
+                  ? `${((stats.nearExpirySubscriptions / stats.totalSubscriptions) * 100).toFixed(1)}% of total`
+                  : "No subscriptions yet"}
+              </p>
+            }
+            icon={<TimerReset className="h-4 w-4 text-muted-foreground" />}
+            bgColor="bg-yellow-100"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <PlanDistributionCard stats={stats} />
+          <SubscriptionStatusChart data={stats.statusDistribution} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6">
+          <SubscriptionTrendChart monthlyStats={stats.monthlyStats} />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 border-2 border-gray-200 rounded-lg p-4">
+          <Card className="bg-yellow-50 border-yellow-300 shadow-sm rounded-lg mx-auto w-full">
+            <CardHeader className="flex justify-between items-center border-b border-yellow-200 pb-2">
+              <CardTitle className="text-lg font-semibold text-yellow-800">Top Plans</CardTitle>
+              <div className="flex items-center gap-2"> 
+                <span className="text-xs text-yellow-600">
+                  <Waypoints className="h-8 w-8" />
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <ul className="list-disc list-inside space-y-1 text-yellow-900 font-medium">
+                {reviewStats.topPlans.length > 0 ? (
+                  reviewStats.topPlans.map((plan) => (
+                    <li key={plan.name}>
+                      {plan._id} — <span className="font-bold">{plan.count}</span>
+                    </li>
+                  ))
+                ) : (
+                  <p className="text-yellow-700">No plans available</p>
+                )}
+              </ul>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Reviews</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
+          <Card className="bg-blue-50 border-blue-300 shadow-sm rounded-lg mx-auto w-full">
+            <CardHeader className="flex justify-between items-center border-b border-blue-200 pb-2">
+              <CardTitle className="text-lg font-semibold text-blue-800">Subscription Trend</CardTitle>
               <div className="flex items-center gap-2">
-                <div className="text-2xl font-bold">
-                  {reviewStats.averageRating.toFixed(1)}
-                </div>
-                <div className="flex items-center">
-                  {renderStars(Math.round(reviewStats.averageRating))}
-                </div>
+                <span className={`text-xs ${reviewStats.subscriptionTrend.growthRate >= 0 ? "text-green-600" : "text-red-600"
+                  }`}>
+                  {reviewStats.subscriptionTrend.growthRate > 0 ? <TrendingUp className="h-8 w-8" /> : <TrendingDown className="h-4 w-4" />}
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {reviewStats.totalReviews} review
-                {reviewStats.totalReviews !== 1 ? "s" : ""}
-              </p>
+            </CardHeader>
+            <CardContent className="pt-4 text-blue-900 font-medium">
+              <div className="flex justify-between mb-2">
+                <span>This Month:</span>
+                <span>{reviewStats.subscriptionTrend.thisMonth}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>Last Month:</span>
+                <span>{reviewStats.subscriptionTrend.lastMonth}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Growth Rate:</span>
+                <span
+                  className={`font-bold ${reviewStats.subscriptionTrend.growthRate >= 0 ? "text-green-600" : "text-red-600"
+                    }`}
+                >
+                  {reviewStats.subscriptionTrend.growthRate > 0 ? "+" : ""}
+                  {reviewStats.subscriptionTrend.growthRate}%
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-orange-50 border-orange-300 shadow-sm rounded-lg mx-auto w-full">
+            <CardHeader className="flex justify-between items-center border-b border-orange-200 pb-2">
+              <CardTitle className="text-lg font-semibold text-orange-800">Predicted Revenue</CardTitle>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs ${reviewStats.revenue.revenueGrowthRate >= 0 ? "text-green-600" : "text-red-600"
+                  }`}>
+                  {reviewStats.revenue.revenueGrowthRate > 0 ? <TrendingUp className="h-8 w-8" /> : <TrendingDown className="h-4 w-4" />}
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4 text-orange-900 font-medium">
+              <div className="flex justify-between mb-2">
+                <span>Predicted Revenue Next Month:</span>
+                <span>₹{reviewStats.revenue.predictedRevenueNextMonth}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>Revenue Last Month:</span>
+                <span>₹{reviewStats.revenue.revenueLastMonth}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Revenue Growth Rate:</span>
+                <span>{reviewStats.revenue.revenueGrowthRate}%</span>
+              </div>
             </CardContent>
           </Card>
         </div>
+
 
         {/* Recent Reviews */}
         {reviewStats.recentReviews.length > 0 && (
@@ -431,8 +687,9 @@ export default function MessDashboardPage() {
                 View All Reviews
               </Button>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="flex flex-col md:flex-row gap-4">
+              <SentimentCard sentiment={reviewStats.reviewSentiment} />
+              <div className="space-y-4 flex-1">
                 {reviewStats.recentReviews.map((review) => (
                   <div key={review.id} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-2">
@@ -493,9 +750,8 @@ export default function MessDashboardPage() {
                     className="flex items-start gap-3 p-3 border rounded-lg"
                   >
                     <span
-                      className={`h-3 w-3 mt-1 rounded-full flex-shrink-0 ${
-                        item.type === "veg" ? "bg-green-500" : "bg-red-500"
-                      }`}
+                      className={`h-3 w-3 mt-1 rounded-full flex-shrink-0 ${item.type === "veg" ? "bg-green-500" : "bg-red-500"
+                        }`}
                     />
                     <div>
                       <p className="font-medium">{item.name}</p>
@@ -538,14 +794,14 @@ export default function MessDashboardPage() {
             <Tabs defaultValue="active" className="w-full">
               <TabsList>
                 <TabsTrigger value="active">
-                  Active ({stats.active})
+                  Active ({stats.activeSubscriptions})
                 </TabsTrigger>
-                <TabsTrigger value="all">All ({stats.total})</TabsTrigger>
+                <TabsTrigger value="all">All ({stats.totalSubscriptions})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="active" className="mt-4">
                 {subscriptions.filter((sub) => sub.status === "active").length >
-                0 ? (
+                  0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -590,8 +846,8 @@ export default function MessDashboardPage() {
                                 <p className="text-sm text-muted-foreground">
                                   {getDaysRemaining(subscription.endDate) > 0
                                     ? `${getDaysRemaining(
-                                        subscription.endDate
-                                      )} days left`
+                                      subscription.endDate
+                                    )} days left`
                                     : "Expired"}
                                 </p>
                               </div>
@@ -602,8 +858,8 @@ export default function MessDashboardPage() {
                                   subscription.status === "active"
                                     ? "default"
                                     : subscription.status === "expired"
-                                    ? "secondary"
-                                    : "destructive"
+                                      ? "secondary"
+                                      : "destructive"
                                 }
                               >
                                 {subscription.status}
@@ -675,8 +931,8 @@ export default function MessDashboardPage() {
                                 subscription.status === "active"
                                   ? "default"
                                   : subscription.status === "expired"
-                                  ? "secondary"
-                                  : "destructive"
+                                    ? "secondary"
+                                    : "destructive"
                               }
                             >
                               {subscription.status}
