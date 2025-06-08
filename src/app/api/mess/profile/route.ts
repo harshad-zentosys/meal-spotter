@@ -5,6 +5,7 @@ import { authOptions } from "../../../api/auth-options";
 import Mess from "@/models/Mess";
 import User from "@/models/User";
 import { put } from "@vercel/blob";
+import { S3Service } from "@/lib/s3";
 
 // GET /api/mess/profile - Get the mess profile for the logged-in mess owner
 export async function GET() {
@@ -151,12 +152,10 @@ export async function PUT(request: Request) {
         // Create unique filename
         const filename = `mess-${user._id}-${Date.now()}-${imageFile.name}`;
 
-        // Upload to Vercel Blob
-        const blob = await put(filename, bytes, {
-          access: "public",
-        });
-
-        imageUrl = blob.url;
+        const s3Service = new S3Service();
+        imageUrl = await s3Service.uploadFile(Buffer.from(bytes), filename);
+        
+        console.log("✅ Image uploaded successfully:", imageUrl);
       } catch (error) {
         console.error("Error uploading image:", error);
         return Response.json(

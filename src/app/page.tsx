@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight,  Check, MapPin, Sparkles, Star, Users, Calendar, Shield } from "lucide-react";
+import { ArrowRight,  Check, MapPin, Sparkles, Star, Users, Calendar, Shield, Store, PlaneTakeoff, Salad } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function Home() {
@@ -88,9 +88,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Mess Owner CTA Section */}
         {/* Mess Owner CTA Section */}
-        <section className="px-20 relative">
+        <section className="px-2 md:px-20 relative">
         <div className="container mx-auto px-4">
           <Card className="relative overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-white to-orange-50/50">
             <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-orange-400 to-red-500 rounded-full blur-3xl opacity-20" />
@@ -169,7 +168,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Why Choose Meal Spotter?
+              Why Choose <span className="text-orange-500 font-bold italic underline">Meal'Spotter</span> ?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Experience the future of campus dining with our innovative platform
@@ -226,13 +225,16 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
             {[
-              { number: "500+", label: "Active Students" },
-              { number: "50+", label: "Partner Messes" },
-              { number: "10K+", label: "Meals Served" },
-              { number: "4.8", label: "Average Rating" },
+              { number: "500+", label: "Active Students", icon: Users },
+              { number: "50+", label: "Partner Messes", icon: Store },
+              { number: "10K+", label: "Meals Served", icon: Salad },
+              { number: "4.8", label: "Average Rating", icon: Star },
             ].map((stat, index) => (
               <div key={index} className="space-y-2">
-                <div className="text-3xl lg:text-4xl font-bold">{stat.number}</div>
+                <div className="text-3xl lg:text-4xl font-bold flex items-center justify-center gap-2">
+                  {stat.icon && <stat.icon className="w-6 h-6" />}
+                  {stat.number}
+                </div>
                 <div className="text-orange-100 text-sm lg:text-base">{stat.label}</div>
               </div>
             ))}

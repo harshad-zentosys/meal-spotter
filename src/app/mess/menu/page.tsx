@@ -744,10 +744,10 @@ export default function MenuManagement() {
 
   return (
     <ProtectedRoute requiredRole="mess-owner">
-      <div className="flex gap-6 px-20 py-8">
+      <div className="flex gap-6 px-4 md:px-20 py-8 flex-col md:flex-row">
         {/* Main Content */}
-        <div className="flex-1 space-y-8">
-          <div className="flex items-center justify-between">
+        <div className="flex-1 space-y-8 w-full">
+          <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
             <div>
               <h1 className="text-3xl font-bold">Menu Management</h1>
               <p className="text-muted-foreground">
@@ -1142,7 +1142,7 @@ export default function MenuManagement() {
         </div>
 
         {/* Right Sidebar - Items Index */}
-        <div className="w-80 bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl shadow-sm border border-slate-200/60 p-6 space-y-6 h-fit sticky top-4">
+        <div className="w-full md:w-80 bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl shadow-sm border border-slate-200/60 p-6 space-y-6 h-fit sticky top-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="font-bold text-xl text-slate-800 flex items-center gap-2">

@@ -339,8 +339,8 @@ export default function MessDashboardPage() {
 
   return (
     <ProtectedRoute requiredRole="mess-owner">
-      <div className="space-y-8 px-20 py-8">
-        <div className="flex items-center justify-between">
+      <div className="space-y-8 px-4 md:px-20 py-8">
+        <div className="flex items-center justify-between flex-col md:flex-row gap-4">
           <div>
             <h1 className="text-3xl font-bold">
               {profile?.name ? `${profile.name} Dashboard` : "Dashboard"}
@@ -350,7 +350,7 @@ export default function MessDashboardPage() {
               today.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ">
             <Button
               variant="outline"
               onClick={() => router.push("/mess/profile")}
@@ -556,7 +556,7 @@ export default function MessDashboardPage() {
 
           <StatsCard
             title="Avg Subscription Price"
-            value={stats.avgSubscriptionPrice}
+            value={stats.avgSubscriptionPrice.toFixed(2)}
             subtitle={<p className="text-xs text-muted-foreground">from all subscriptions</p>}
             icon={<GaugeCircle className="h-4 w-4 text-muted-foreground" />}
             bgColor="bg-yellow-100"

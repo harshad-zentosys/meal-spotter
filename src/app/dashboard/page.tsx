@@ -134,7 +134,7 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="space-y-8 px-20 py-8">
+      <div className="space-y-8 px-4 md:px-20 py-8">
         {userLocation === null && (
           <div className="bg-red-100 border border-red-200 rounded-md p-4 mb-6 flex items-start gap-3 align-center">
             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />

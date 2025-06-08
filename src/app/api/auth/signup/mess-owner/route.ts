@@ -5,6 +5,7 @@ import Mess from "@/models/Mess";
 import { hash } from "bcrypt";
 import { otpStore } from "@/lib/otpStore";
 import { put } from "@vercel/blob";
+import { S3Service } from "@/lib/s3";
 
 export async function POST(req: NextRequest) {
   try {
@@ -115,12 +116,8 @@ export async function POST(req: NextRequest) {
         // Create unique filename
         const filename = `mess-${newUser._id}-${Date.now()}-${imageFile.name}`;
 
-        // Upload to Vercel Blob
-        const blob = await put(filename, bytes, {
-          access: "public",
-        });
-
-        imageUrl = blob.url;
+        const s3Service = new S3Service();
+        imageUrl = await s3Service.uploadFile(Buffer.from(bytes), filename);
         console.log("✅ Image uploaded successfully:", imageUrl);
       } catch (error) {
         console.error("Error uploading image during signup:", error);

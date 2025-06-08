@@ -526,8 +526,8 @@ export default function MessProfilePage() {
 
   return (
     <ProtectedRoute requiredRole="mess-owner">
-      <div className="space-y-8 px-20 py-8">
-        <div className="flex items-center justify-between">
+      <div className="space-y-8 px-4 md:px-20 py-8">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Mess Profile</h1>
             <p className="text-muted-foreground">
@@ -813,7 +813,7 @@ export default function MessProfilePage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
+                          className="absolute top-2 right-2 md:opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
                           onClick={() => handleDeletePlan(index)}
                         >
                           <Trash className="h-4 w-4 text-red-500" />

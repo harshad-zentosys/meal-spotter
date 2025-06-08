@@ -1,5 +1,5 @@
-import { put } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
+import { S3Service } from "@/lib/s3";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,14 +20,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, fileData, {
-      access: "public",
-    });
+    const s3Service = new S3Service();
+    const url = await s3Service.uploadFile(Buffer.from(fileData), filename);
 
+    
     return NextResponse.json({
-      url: blob.url,
-      downloadUrl: blob.downloadUrl,
+      url: url,
+      downloadUrl: url,
     });
   } catch (error) {
     console.error("Upload error:", error);

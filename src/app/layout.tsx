@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <Navbar />
-          <main className="container mx-auto w-full">
+          <main className="container mx-auto w-full mt-16">
             {children}
           </main>
           <Footer />
