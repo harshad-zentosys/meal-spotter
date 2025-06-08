@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, User, Star, MapPin } from "lucide-react";
+import { AlertCircle, User, Star, MapPin, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 // Default placeholder image
 const defaultImage =
@@ -41,7 +42,28 @@ export default function Dashboard() {
   const [messes, setMesses] = useState<Mess[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
+  function debounce(func: (...args: any[]) => void, wait: number) {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: any[]) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  const handleInputChange = useCallback(
+    debounce((event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setSearchQuery(value);
+      console.log("value", value);
+    }, 300),
+    []
+  );
 
   // take geolocation of user
   const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
@@ -57,7 +79,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchMesses = async () => {
       try {
-        const response = await fetch(`/api/messes?lat=${userLocation?.lat}&lng=${userLocation?.lng}`);
+        const response = await fetch(`/api/messes?lat=${userLocation?.lat}&lng=${userLocation?.lng}&search=${searchQuery}`);
         const data = await response.json();
 
         if (response.ok) {
@@ -74,7 +96,7 @@ export default function Dashboard() {
     };
 
     fetchMesses();
-  }, [userLocation]);
+  }, [userLocation, searchQuery]);
 
   const renderStars = (rating: number, showText = true) => {
     const stars = [];
@@ -138,6 +160,20 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* add searh box with debounce search and show results in a list */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2"> 
+            <Search className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <Input
+            type="text"
+            placeholder="Search messes"
+            defaultValue={searchQuery}
+            onChange={handleInputChange}
+            className="w-1/2"
+          />
+        </div>
+
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6 flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -173,10 +209,10 @@ export default function Dashboard() {
                     <h3 className="text-lg font-semibold">{mess.name}</h3>
                     <span
                       className={`rounded-full px-2 py-1 text-xs font-medium ${mess.type === "veg"
-                          ? "bg-green-100 text-green-800"
-                          : mess.type === "non-veg"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-orange-100 text-orange-800"
+                        ? "bg-green-100 text-green-800"
+                        : mess.type === "non-veg"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-orange-100 text-orange-800"
                         }`}
                     >
                       {mess.type === "veg"
@@ -230,8 +266,8 @@ export default function Dashboard() {
                             <div className="flex items-center gap-2 text-sm">
                               <span
                                 className={`h-2 w-2 rounded-full ${item.type === "veg"
-                                    ? "bg-green-500"
-                                    : "bg-red-500"
+                                  ? "bg-green-500"
+                                  : "bg-red-500"
                                   }`}
                               />
                               {item.name}

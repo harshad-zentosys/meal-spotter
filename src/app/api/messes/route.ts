@@ -11,9 +11,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const lat = parseFloat(searchParams.get("lat") || "0");
     const lng = parseFloat(searchParams.get("lng") || "0");
+    const search = searchParams.get("search") || "";
+    console.log("search", search);
 
-    console.log("lat", lat);
-    console.log("lng", lng);
   
     const isGeoSearch = !isNaN(lat) && !isNaN(lng);
     let messes = [];
@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
             spherical: true,
             query: {
               location: { $exists: true, $ne: null },
+              ...(search ? { name: { $regex: search, $options: "i" } } : {}),
             },
           },
         },
@@ -34,6 +35,7 @@ export async function GET(req: NextRequest) {
 
       const withoutGeoMess = await Mess.find({
         location: { $exists: false },
+        ...(search ? { name: { $regex: search, $options: "i" } } : {}),
       }).sort({ createdAt: -1 });
 
       messes = [...geoMess, ...withoutGeoMess];
@@ -76,8 +78,6 @@ export async function GET(req: NextRequest) {
         };
       })
     );
-
-    if(isGeoSearch) console.log("messesWithMenuAndRatings", messesWithMenuAndRatings);
 
     return NextResponse.json(
       { messes: messesWithMenuAndRatings },
