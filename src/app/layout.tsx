@@ -9,8 +9,8 @@ import Footer from "@/components/layout/footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Meal Spotter",
-  description: "Find and explore mess options for your daily meals",
+  title: "Meal'Spotter",
+  description: "Meal'Spotter is a platform for students to find and explore mess options for their daily meals. It is a platform for mess owners to manage their mess and for students to find and explore mess options for their daily meals.",
 };
 
 export default function RootLayout({
