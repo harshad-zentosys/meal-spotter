@@ -9,7 +9,6 @@ export async function GET(req: NextRequest, { params }: { params: { messId: stri
   try {
     await connectToDatabase();
     const { messId } = await params;
-    console.log("messId", messId);
 
     const subs = await Subscription.find({ messId });
     const reviews = await Review.find({ messId }).sort({ createdAt: -1 }).limit(10);
@@ -17,7 +16,6 @@ export async function GET(req: NextRequest, { params }: { params: { messId: stri
     const sentiments = reviews.map(r =>
       SentimentIntensityAnalyzer.polarity_scores(r.comment || "")
     );
-    console.log("sentiments", sentiments);
 
     const avgSentiment = sentiments.reduce((sum, s) => sum + s.compound, 0) / sentiments.length;
     const topComment = reviews.find(r => SentimentIntensityAnalyzer.polarity_scores(r.comment).compound > 0.6)?.comment;
@@ -79,7 +77,6 @@ export async function GET(req: NextRequest, { params }: { params: { messId: stri
         createdAt: r.createdAt
       }))
     };
-    console.log("result", result);
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
     console.error(err);
