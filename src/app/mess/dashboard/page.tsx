@@ -41,6 +41,9 @@ import {
   GaugeCircle,
   Timer,
   TrendingUp,
+  TrendingDown,
+  Waypoints,
+  ChartBar,
 } from "lucide-react";
 import { StatsCard } from "@/components/comman/statsCard";
 import { PlanDistributionCard } from "@/components/comman/PlanDistributionCard";
@@ -570,12 +573,118 @@ export default function MessDashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <PlanDistributionCard stats={stats} />
-          <SubscriptionStatusChart data={stats.statusDistribution} />   
+          <SubscriptionStatusChart data={stats.statusDistribution} />
         </div>
 
         <div className="grid grid-cols-1 gap-6">
           <SubscriptionTrendChart monthlyStats={stats.monthlyStats} />
         </div>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <ChartBar className="h-5 w-5" />
+                  Insights - Top Plans, Subscription Trend, Predicted Revenue
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="bg-yellow-50 border-yellow-300 shadow-sm rounded-lg mx-auto w-full">
+                  <CardHeader className="flex justify-between items-center border-b border-yellow-200 pb-2">
+                    <CardTitle className="text-lg font-semibold text-yellow-800">Top Plans</CardTitle>
+                    <Waypoints className="h-8 w-8 text-yellow-600" />
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <ul className="list-disc list-inside space-y-1 text-yellow-900 font-medium">
+                      {reviewStats.topPlans.length > 0 ? (
+                        reviewStats.topPlans.map((plan) => (
+                          <li key={plan.name}>
+                            {plan._id} — <span className="font-bold">{plan.count}</span>
+                          </li>
+                        ))
+                      ) : (
+                        <p className="text-yellow-700">No plans available</p>
+                      )}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-blue-50 border-blue-300 shadow-sm rounded-lg mx-auto w-full">
+                  <CardHeader className="flex justify-between items-center border-b border-blue-200 pb-2">
+                    <CardTitle className="text-lg font-semibold text-blue-800">Subscription Trend</CardTitle>
+                    {
+                      reviewStats.subscriptionTrend.growthRate > 0 ?
+                        <span className="text-green-600">
+                          <TrendingUp className="h-8 w-8" />
+                        </span>
+                        :
+                        <span className="text-red-600">
+                          <TrendingDown className="h-8 w-8" />
+                        </span>
+                    }
+                  </CardHeader>
+                  <CardContent className="pt-4 text-blue-900 font-medium">
+                    <div className="flex justify-between mb-2">
+                      <span>This Month:</span>
+                      <span>{reviewStats.subscriptionTrend.thisMonth}</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span>Last Month:</span>
+                      <span>{reviewStats.subscriptionTrend.lastMonth}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Growth Rate:</span>
+                      <span
+                        className={`font-bold ${reviewStats.subscriptionTrend.growthRate >= 0 ? "text-green-600" : "text-red-600"
+                          }`}
+                      >
+                        {reviewStats.subscriptionTrend.growthRate > 0 ? "+" : ""}
+                        {reviewStats.subscriptionTrend.growthRate}%
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-green-50 border-green-300 shadow-sm rounded-lg mx-auto w-full">
+                  <CardHeader className="flex justify-between items-center border-b border-green-200 pb-2">
+                    <CardTitle className="text-lg font-semibold text-green-800">Predicted Revenue</CardTitle>
+                    {
+                      reviewStats.revenue.revenueGrowthRate > 0 ?
+                        <span className="text-green-600">
+                          <TrendingUp className="h-8 w-8" />
+                        </span>
+                        :
+                        <span className="text-red-600">
+                          <TrendingDown className="h-8 w-8" />
+                        </span>
+                    }
+                  </CardHeader>
+                  <CardContent className="pt-4 text-green-900 font-medium">
+                    <div className="flex justify-between mb-2">
+                      <span>Predicted Next Month:</span>
+                      <span>{reviewStats.revenue.predictedRevenueNextMonth}</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span>Last Month:</span>
+                      <span>{reviewStats.revenue.revenueLastMonth}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Growth Rate:</span>
+                      <span
+                        className={`font-bold ${reviewStats.revenue.revenueGrowthRate >= 0 ? "text-green-600" : "text-red-600"
+                          }`}
+                      >
+                        {reviewStats.revenue.revenueGrowthRate > 0 ? "+" : ""}
+                        {reviewStats.revenue.revenueGrowthRate}%
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+        </Card>
 
 
         {/* Recent Reviews */}

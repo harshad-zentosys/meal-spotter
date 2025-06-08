@@ -12,10 +12,18 @@ export async function GET(req: NextRequest, { params }: { params: { messId: stri
 
     const subs = await Subscription.find({ messId });
     const reviews = await Review.find({ messId }).sort({ createdAt: -1 }).limit(10);
-
-    const sentiments = reviews.map(r =>
-      SentimentIntensityAnalyzer.polarity_scores(r.comment || "")
-    );
+    const sentiments = reviews.map(r => {
+      const commentSentiment = SentimentIntensityAnalyzer.polarity_scores(r.comment || "");
+      // Convert rating (1-5) to sentiment scale (-1 to 1)
+      const ratingSentiment = (r.rating - 3) / 2;
+      // Combine both sentiments with equal weight
+      return {
+        compound: (commentSentiment.compound + ratingSentiment) / 2,
+        pos: (commentSentiment.pos + (ratingSentiment > 0 ? ratingSentiment : 0)) / 2,
+        neg: (commentSentiment.neg + (ratingSentiment < 0 ? -ratingSentiment : 0)) / 2,
+        neu: (commentSentiment.neu + (ratingSentiment === 0 ? 1 : 0)) / 2
+      };
+    });
 
     const avgSentiment = sentiments.reduce((sum, s) => sum + s.compound, 0) / sentiments.length;
     const topComment = reviews.find(r => SentimentIntensityAnalyzer.polarity_scores(r.comment).compound > 0.6)?.comment;
