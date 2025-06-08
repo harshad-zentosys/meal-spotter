@@ -73,7 +73,8 @@ export async function PUT(request: Request) {
     let name,
       type,
       cuisine,
-      location,
+      lat,
+      lng,
       address,
       contactNumber,
       description,
@@ -89,7 +90,8 @@ export async function PUT(request: Request) {
       name = formData.get("name") as string;
       type = formData.get("type") as string;
       const cuisineStr = formData.get("cuisine") as string;
-      location = formData.get("location") as string;
+      lat = formData.get("lat") as string;
+      lng = formData.get("lng") as string;
       address = formData.get("address") as string;
       contactNumber = formData.get("contactNumber") as string;
       description = formData.get("description") as string;
@@ -117,7 +119,8 @@ export async function PUT(request: Request) {
       name = body.name;
       type = body.type;
       cuisine = body.cuisine;
-      location = body.location;
+      lat = body.lat;
+      lng = body.lng;
       address = body.address;
       contactNumber = body.contactNumber;
       description = body.description;
@@ -132,6 +135,7 @@ export async function PUT(request: Request) {
         { status: 400 }
       );
     }
+
 
     await connectToDatabase();
 
@@ -167,7 +171,8 @@ export async function PUT(request: Request) {
       if (name !== undefined) mess.name = name;
       if (type !== undefined) mess.type = type;
       if (cuisine !== undefined) mess.cuisine = cuisine;
-      if (location !== undefined) mess.location = location;
+      if (lat !== undefined) mess.lat = lat;
+      if (lng !== undefined) mess.lng = lng;
       if (address !== undefined) mess.address = address;
       if (contactNumber !== undefined) mess.contactNumber = contactNumber;
       if (description !== undefined) mess.description = description;
@@ -218,7 +223,7 @@ export async function PUT(request: Request) {
       await mess.save();
     } else {
       // Create new mess - require essential fields
-      if (!name || !location || !address) {
+      if (!name || !lat || !lng || !address) {
         return Response.json(
           {
             error:
@@ -233,7 +238,8 @@ export async function PUT(request: Request) {
         name,
         type,
         cuisine,
-        location,
+        lat,
+        lng,
         address,
         contactNumber,
         description,
