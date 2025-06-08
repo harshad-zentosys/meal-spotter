@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
+import Footer from "@/components/layout/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,9 +23,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <Navbar />
-          <main className="container mx-auto px-4 py-6 max-w-7xl">
+          <main className="container mx-auto w-full">
             {children}
           </main>
+          <Footer />
           <Toaster />
         </AuthProvider>
       </body>
