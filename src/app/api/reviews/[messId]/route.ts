@@ -5,12 +5,11 @@ import Review from "@/models/Review";
 import { SentimentIntensityAnalyzer } from "vader-sentiment"; // use locally
 import mongoose from "mongoose";
 
-export async function GET(req: NextRequest, { params }: { params: { messId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ messId: string }> }) {
   try {
     await connectToDatabase();
     const { messId } = await params;
 
-    const subs = await Subscription.find({ messId });
     const reviews = await Review.find({ messId }).sort({ createdAt: -1 }).limit(10);
     const sentiments = reviews.map(r => {
       const commentSentiment = SentimentIntensityAnalyzer.polarity_scores(r.comment || "");
