@@ -44,6 +44,7 @@ import {
   TrendingDown,
   Waypoints,
   ChartBar,
+  Sparkle,
 } from "lucide-react";
 import { StatsCard } from "@/components/comman/statsCard";
 import { PlanDistributionCard } from "@/components/comman/PlanDistributionCard";
@@ -588,6 +589,9 @@ export default function MessDashboardPage() {
                   Insights - Top Plans, Subscription Trend, Predicted Revenue
                 </CardTitle>
               </div>
+              <div className="flex items-center gap-2">
+                <Sparkle className="h-5 w-5 text-yellow-600" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -599,8 +603,8 @@ export default function MessDashboardPage() {
                   <CardContent className="pt-4">
                     <ul className="list-disc list-inside space-y-1 text-yellow-900 font-medium">
                       {reviewStats.topPlans.length > 0 ? (
-                        reviewStats.topPlans.map((plan) => (
-                          <li key={plan.name}>
+                        reviewStats.topPlans.map((plan, index) => (
+                          <li key={index}>
                             {plan._id} — <span className="font-bold">{plan.count}</span>
                           </li>
                         ))
