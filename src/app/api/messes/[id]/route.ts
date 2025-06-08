@@ -44,6 +44,8 @@ export async function GET(
       name: mess.name,
       type: mess.type,
       location: mess.location,
+      lat: mess.lat,
+      lng: mess.lng,
       address: mess.address,
       contactNumber: mess.contactNumber,
       description: mess.description || "",
