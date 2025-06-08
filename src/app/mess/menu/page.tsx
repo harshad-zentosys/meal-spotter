@@ -744,7 +744,7 @@ export default function MenuManagement() {
 
   return (
     <ProtectedRoute requiredRole="mess-owner">
-      <div className="flex gap-6">
+      <div className="flex gap-6 px-20 py-8">
         {/* Main Content */}
         <div className="flex-1 space-y-8">
           <div className="flex items-center justify-between">

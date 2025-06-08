@@ -154,7 +154,7 @@ export default function MySubscriptionsPage() {
 
   return (
     <ProtectedRoute requiredRole="student">
-      <div className="space-y-8">
+      <div className="space-y-8 px-20 py-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

@@ -229,16 +229,29 @@ export default function MessProfileSetup() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Location/Area</Label>
-                    <Input
-                      id="lat"
-                      name="lat"
-                      value={profileData.lat}
-                      onChange={handleChange}
-                      placeholder="e.g., North Campus"
-                      required
-                    />
+                  <div className="flex gap-4 w-full">
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Latitude</Label>
+                      <Input
+                        id="lat"
+                        name="lat"
+                        value={profileData.lat}
+                        onChange={handleChange}
+                        placeholder="e.g., North Campus"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Longitude</Label>
+                      <Input
+                        id="lng"
+                        name="lng"
+                        value={profileData.lng}
+                        onChange={handleChange}
+                        placeholder="e.g., North Campus"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">

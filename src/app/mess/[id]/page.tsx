@@ -377,7 +377,7 @@ export default function MessDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background px-20 py-8 ">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Link href="/dashboard">

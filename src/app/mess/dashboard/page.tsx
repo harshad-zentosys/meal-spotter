@@ -339,7 +339,7 @@ export default function MessDashboardPage() {
 
   return (
     <ProtectedRoute requiredRole="mess-owner">
-      <div className="space-y-8">
+      <div className="space-y-8 px-20 py-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">
