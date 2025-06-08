@@ -24,10 +24,11 @@ export default function MessProfileSetup() {
     name: "",
     type: "both",
     cuisine: "",
-    location: "",
     address: "",
     contactNumber: "",
     description: "",
+    lat: "",
+    lng: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -47,7 +48,8 @@ export default function MessProfileSetup() {
             name: data.mess.name || "",
             type: data.mess.type || "both",
             cuisine: data.mess.cuisine ? data.mess.cuisine.join(", ") : "",
-            location: data.mess.location || "",
+            lat: data.mess.lat || "",
+            lng: data.mess.lng || "",
             address: data.mess.address || "",
             contactNumber: data.mess.contactNumber || "",
             description: data.mess.description || "",
@@ -230,9 +232,9 @@ export default function MessProfileSetup() {
                   <div className="space-y-2">
                     <Label htmlFor="location">Location/Area</Label>
                     <Input
-                      id="location"
-                      name="location"
-                      value={profileData.location}
+                      id="lat"
+                      name="lat"
+                      value={profileData.lat}
                       onChange={handleChange}
                       placeholder="e.g., North Campus"
                       required

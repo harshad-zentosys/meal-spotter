@@ -82,9 +82,8 @@ export default function Dashboard() {
       stars.push(
         <Star
           key={i}
-          className={`h-4 w-4 ${
-            i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-          }`}
+          className={`h-4 w-4 ${i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+            }`}
         />
       );
     }
@@ -114,6 +113,14 @@ export default function Dashboard() {
   return (
     <ProtectedRoute>
       <div className="space-y-8">
+        {userLocation === null && (
+          <div className="bg-red-100 border border-red-200 rounded-md p-4 mb-6 flex items-start gap-3 align-center">
+            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+            <p className="text-red-700 text-sm">
+              You've blocked location access. Please enable it from your browser settings to see nearby messes.
+            </p>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -165,19 +172,18 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">{mess.name}</h3>
                     <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        mess.type === "veg"
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${mess.type === "veg"
                           ? "bg-green-100 text-green-800"
                           : mess.type === "non-veg"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-orange-100 text-orange-800"
-                      }`}
+                            ? "bg-red-100 text-red-800"
+                            : "bg-orange-100 text-orange-800"
+                        }`}
                     >
                       {mess.type === "veg"
                         ? "Veg"
                         : mess.type === "non-veg"
-                        ? "Non-veg"
-                        : "Veg & Non-veg"}
+                          ? "Non-veg"
+                          : "Veg & Non-veg"}
                     </span>
                   </div>
 
@@ -185,7 +191,7 @@ export default function Dashboard() {
                     <p className="text-sm text-muted-foreground">
                       <a href={`https://maps.google.com/?q=${mess.lat},${mess.lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
-                        {mess.address ? mess.address.substring(0, 20) + "..." : "No address available"  }
+                        {mess.address ? mess.address.substring(0, 20) + "..." : "No address available"}
                       </a>
                     </p>
 
@@ -223,11 +229,10 @@ export default function Dashboard() {
                             </div>
                             <div className="flex items-center gap-2 text-sm">
                               <span
-                                className={`h-2 w-2 rounded-full ${
-                                  item.type === "veg"
+                                className={`h-2 w-2 rounded-full ${item.type === "veg"
                                     ? "bg-green-500"
                                     : "bg-red-500"
-                                }`}
+                                  }`}
                               />
                               {item.name}
                             </div>

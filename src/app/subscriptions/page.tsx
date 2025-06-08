@@ -45,7 +45,8 @@ interface Mess {
   name: string;
   type: "veg" | "non-veg" | "both";
   cuisine: string[];
-  location: string;
+  lat: number;
+  lng: number;
   address: string;
   contactNumber: string;
   image?: string;
@@ -179,7 +180,7 @@ export default function MySubscriptionsPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
+          <Card className=" bg-green-100">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Total Subscriptions
@@ -194,7 +195,7 @@ export default function MySubscriptionsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className=" bg-orange-100">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Active Subscriptions
@@ -207,7 +208,7 @@ export default function MySubscriptionsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className=" bg-blue-100">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Expired Subscriptions
@@ -222,7 +223,7 @@ export default function MySubscriptionsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className=" bg-yellow-100">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -288,8 +289,10 @@ export default function MySubscriptionsPage() {
                                     </div>
                                     <div className="space-y-1 text-sm text-muted-foreground">
                                       <div className="flex items-center gap-1">
-                                        <MapPin className="h-3 w-3" />
-                                        {subscription.messId.location}
+                                        <a href={`https://maps.google.com/?q=${subscription.messId.lat},${subscription.messId.lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                                          <MapPin className="h-3 w-3" />
+                                          {subscription.messId.address}
+                                        </a>
                                       </div>
                                       {subscription.messId.contactNumber && (
                                         <div className="flex items-center gap-1">
@@ -409,7 +412,7 @@ export default function MySubscriptionsPage() {
                                     {subscription.messId.name}
                                   </p>
                                   <p className="text-sm text-muted-foreground">
-                                    {subscription.messId.location}
+                                    {subscription.messId.address}
                                   </p>
                                 </div>
                               </div>
