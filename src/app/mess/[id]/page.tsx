@@ -377,11 +377,11 @@ export default function MessDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-20 py-8 ">
+    <div className="min-h-screen bg-background px-4 md:px-20 py-8 ">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Link href="/dashboard">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-fit">
               <ChevronLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>

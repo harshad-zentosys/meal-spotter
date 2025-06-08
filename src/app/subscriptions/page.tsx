@@ -154,9 +154,9 @@ export default function MySubscriptionsPage() {
 
   return (
     <ProtectedRoute requiredRole="student">
-      <div className="space-y-8 px-20 py-8">
+      <div className="space-y-8 px-4 md:px-20 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">My Subscriptions</h1>
             <p className="text-muted-foreground">
@@ -265,7 +265,7 @@ export default function MySubscriptionsPage() {
                             className="border-l-4 border-l-green-500"
                           >
                             <CardContent className="p-6">
-                              <div className="flex items-start justify-between">
+                              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                                 <div className="flex items-start gap-4">
                                   <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted">
                                     <Image
@@ -280,7 +280,7 @@ export default function MySubscriptionsPage() {
                                   </div>
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-2">
-                                      <h3 className="text-lg font-semibold">
+                                      <h3 className="text-lg font-semibold text-left md:text-center">
                                         {subscription.messId.name}
                                       </h3>
                                       <Badge variant="outline">
@@ -319,7 +319,7 @@ export default function MySubscriptionsPage() {
                                     </div>
                                   </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-left md:text-right">
                                   <div className="mb-2">
                                     <Badge
                                       variant={getStatusBadgeVariant(
