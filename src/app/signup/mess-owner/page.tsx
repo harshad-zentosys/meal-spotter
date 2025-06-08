@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 export default function MessOwnerSignUp() {
   const router = useRouter();
@@ -699,9 +700,7 @@ export default function MessOwnerSignUp() {
           <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
             <CardHeader className="space-y-1 pb-6">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
-                  <ChefHat className="w-6 h-6 text-white" />
-                </div>
+                <Image src="/logo.png" alt="Meal'Spotter" width={80} height={80} className="rounded-xl" />
                 <div>
                   <CardTitle className="text-2xl font-bold text-gray-900">
                     {currentStep === 1 && "Verify Your Email"}
