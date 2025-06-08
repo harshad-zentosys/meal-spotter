@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth-options";
 import Subscription from "@/models/Subscription";
+import { emailService } from "@/lib/emailService";
 
 // POST /api/subscriptions - Create a new subscription
 export async function POST(request: Request) {
@@ -56,10 +57,37 @@ export async function POST(request: Request) {
       status: "active",
     }, { new: true }).populate("messId");
 
+
     if (!newSubscription) {
       return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
     }
 
+    // Send email to user
+    const data = {
+      userName: session.user.name || "User",
+      messName: newSubscription.messId.name,
+      planName: newSubscription.planName,
+      planDescription: newSubscription.planDescription,
+      price: newSubscription.price,
+      duration: newSubscription.duration,
+      startDate: newSubscription.startDate,
+      endDate: newSubscription.endDate,
+      dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      email: session.user.email || "",
+    }
+    await emailService.sendPlanPurchaseEmail(
+      session.user.name || "User",  
+      newSubscription.messId.name,
+      newSubscription.planName,
+      newSubscription.planDescription,
+      newSubscription.price,
+      newSubscription.duration,
+      newSubscription.startDate,
+      newSubscription.endDate,
+      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      session.user.email || "",
+    );
+    
     return NextResponse.json(
       {
         success: true,

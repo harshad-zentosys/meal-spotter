@@ -269,6 +269,128 @@ class EmailService {
       text: textTemplate,
     });
   }
+
+  async sendPlanPurchaseEmail(
+    userName: string,
+    messName: string,
+    planName: string,
+    planDescription: string,
+    price: number,
+    duration: number,
+    startDate: string,
+    endDate: string,
+    dashboardUrl: string,
+    email: string
+  ): Promise<boolean> {
+
+    const subject = `Purchase Confirmation - ${planName} Plan`;
+    const htmlTemplate = `
+    <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f5;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      .header img {
+        width: 70px;
+        margin-bottom: 10px;
+      }
+      .content {
+        padding: 30px 20px;
+      }
+      .highlight {
+        background: #ecfdf5;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #888;
+        padding: 20px;
+      }
+      .button {
+        display: inline-block;
+        background: #10b981;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="https://res.cloudinary.com/davi8is9g/image/upload/v1749313110/logo_transparent_oiddu7.png" alt="Meal Spotter Logo" />
+        <h1>Meal Spotter</h1>
+        <h2>Plan Subscription Confirmed!</h2>
+      </div>
+      <div class="content">
+        <p>Hello <strong>${userName}</strong>,</p>
+        <p>
+          Thank you for subscribing to a meal plan with <strong>${messName}</strong> on Meal Spotter.
+        </p>
+
+        <div class="highlight">
+          <h3>Plan Details</h3>
+          <p><strong>Plan:</strong> ${planName}</p>
+          <p><strong>Price:</strong> ₹${price}</p>
+          <p><strong>Duration:</strong> ${duration} days</p>
+          <p><strong>Start Date:</strong> ${startDate}</p>
+          <p><strong>End Date:</strong> ${endDate}</p>
+        </div>
+
+        <p>
+          We hope this plan helps you enjoy regular, delicious, and timely meals! You can manage or cancel your subscription anytime from your dashboard.
+        </p>
+
+        <a href="${dashboardUrl}" class="button">Go to Dashboard</a>
+
+        <p style="margin-top: 30px;">
+          If you have any questions or need assistance, feel free to contact us at <a href="mailto:support@mealspotter.com">support@mealspotter.com</a>.
+        </p>
+      </div>
+      <div class="footer">
+        <p>This is an automated email. Please do not reply.</p>
+        <p>© ${new Date().getFullYear()} Meal Spotter. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
+
+    `
+
+    return this.provider.sendEmail({
+      to: email,
+      subject: subject,
+      html: htmlTemplate,
+    });
+  }
+
 }
 
 // Export singleton instance
