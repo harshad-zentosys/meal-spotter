@@ -47,7 +47,7 @@ export async function GET(request: Request) {
                     cancelled: [{ $match: { status: "cancelled" } }, { $count: "count" }],
                     upcoming: [{ $match: { startDate: { $gt: today } } }, { $count: "count" }],
                     newThisMonth: [
-                        { $match: { startDate: { $gte: startOfMonth } } },
+                        { $match: { createdAt: { $gte: startOfMonth } } },
                         { $count: "count" },
                     ],
                     totalRevenue: [
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
                         { $group: { _id: null, total: { $sum: "$price" } } },
                     ],
                     monthlyRevenue: [
-                        { $match: { startDate: { $gte: startOfMonth }, status: { $in: ["active", "expired"] } } },
+                        { $match: { createdAt: { $gte: startOfMonth } } },
                         { $group: { _id: null, total: { $sum: "$price" } } },
                     ],
                     avgPrice: [{ $group: { _id: null, avg: { $avg: "$price" } } }],
