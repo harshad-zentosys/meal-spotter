@@ -44,6 +44,7 @@ export interface IMess extends Document {
   itemsIndex?: IndexItem[];
   createdAt: Date;
   updatedAt: Date;
+  location: any;
 }
 
 const MessSchema = new Schema<IMess>(
@@ -119,9 +120,14 @@ const MessSchema = new Schema<IMess>(
         price: { type: Number, default: 0 },
       },
     ],
+    location: {
+      type: { type: String, enum: ['Point'], required: true },
+      coordinates: { type: [Number], required: true },
+    }
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Mess ||
-  mongoose.model<IMess>("Mess", MessSchema);
+MessSchema.index({ location: "2dsphere" });
+
+export default mongoose.models.Mess || mongoose.model<IMess>("Mess", MessSchema);

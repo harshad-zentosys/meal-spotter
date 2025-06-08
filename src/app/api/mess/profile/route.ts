@@ -177,6 +177,12 @@ export async function PUT(request: Request) {
       if (contactNumber !== undefined) mess.contactNumber = contactNumber;
       if (description !== undefined) mess.description = description;
       if (imageUrl !== undefined) mess.image = imageUrl;
+      if (lat !== undefined && lng !== undefined) {
+        mess.location = {
+          type: "Point",
+          coordinates: [lng, lat],
+        };
+      }
 
       // Update plans if provided
       if (plans !== undefined) {
@@ -219,7 +225,8 @@ export async function PUT(request: Request) {
         console.log("=== END DEBUG ===");
         mess.itemsIndex = itemsIndex;
       }
-
+      console.log("mess.location", mess.location);
+      console.log("mess.location.coordinates", mess);
       await mess.save();
     } else {
       // Create new mess - require essential fields
@@ -247,6 +254,10 @@ export async function PUT(request: Request) {
         plans: plans || [],
         menu: menu || [],
         itemsIndex: itemsIndex || [],
+        location: {
+          type: "Point",
+          coordinates: [lng, lat],
+        },
       });
 
       await mess.save();

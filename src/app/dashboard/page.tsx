@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, User, Star } from "lucide-react";
+import { AlertCircle, User, Star, MapPin } from "lucide-react";
 
 // Default placeholder image
 const defaultImage =
@@ -25,7 +25,8 @@ interface Mess {
   id: string;
   name: string;
   type: "veg" | "non-veg" | "both";
-  location: string;
+  lat: number;
+  lng: number;
   address: string;
   contactNumber: string;
   description?: string;
@@ -41,10 +42,22 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
+  // take geolocation of user
+  const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const fetchMesses = async () => {
       try {
-        const response = await fetch("/api/messes");
+        const response = await fetch(`/api/messes?lat=${userLocation?.lat}&lng=${userLocation?.lng}`);
         const data = await response.json();
 
         if (response.ok) {
@@ -61,7 +74,7 @@ export default function Dashboard() {
     };
 
     fetchMesses();
-  }, []);
+  }, [userLocation]);
 
   const renderStars = (rating: number, showText = true) => {
     const stars = [];
@@ -170,7 +183,10 @@ export default function Dashboard() {
 
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-sm text-muted-foreground">
-                      {mess.location}
+                      <a href={`https://maps.google.com/?q=${mess.lat},${mess.lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        {mess.address ? mess.address.substring(0, 20) + "..." : "No address available"  }
+                      </a>
                     </p>
 
                     {mess.totalReviews > 0 ? (

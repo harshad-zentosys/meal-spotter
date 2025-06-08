@@ -1,19 +1,50 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import Mess from "@/models/Mess";
-import Review from "@/models/Review";
+import Review from "@/models/Review"; 
+import { PipelineStage } from "mongoose";
 
 // GET /api/messes - Get all messes
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
+    const { searchParams } = new URL(req.url);
+    const lat = parseFloat(searchParams.get("lat") || "0");
+    const lng = parseFloat(searchParams.get("lng") || "0");
 
-    // Get all messes and populate with recent menu items if available
-    const messes = await Mess.find({}).sort({ createdAt: -1 });
+    console.log("lat", lat);
+    console.log("lng", lng);
+  
+    const isGeoSearch = !isNaN(lat) && !isNaN(lng);
+    let messes = [];
+
+    if(isGeoSearch) {
+      const geoMess = await Mess.aggregate([
+        {
+          $geoNear: {
+            near: { type: "Point" as const, coordinates: [lng, lat] as [number, number] },
+            distanceField: "distance",
+            spherical: true,
+            query: {
+              location: { $exists: true, $ne: null },
+            },
+          },
+        },
+      ]).sort({ createdAt: -1 });
+
+      const withoutGeoMess = await Mess.find({
+        location: { $exists: false },
+      }).sort({ createdAt: -1 });
+
+      messes = [...geoMess, ...withoutGeoMess];
+    } else {
+      messes = await Mess.find({}).sort({ createdAt: -1 });
+    }
+
 
     // Map the messes to include today's menu items and rating information
     const messesWithMenuAndRatings = await Promise.all(
-      messes.map(async (mess) => {
+      messes.map(async (mess: any) => {
         const todayMenu =
           mess.menu && mess.menu.length > 0
             ? mess.menu[mess.menu.length - 1].items
@@ -45,6 +76,8 @@ export async function GET() {
         };
       })
     );
+
+    if(isGeoSearch) console.log("messesWithMenuAndRatings", messesWithMenuAndRatings);
 
     return NextResponse.json(
       { messes: messesWithMenuAndRatings },

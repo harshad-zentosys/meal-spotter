@@ -135,7 +135,6 @@ export async function POST(req: NextRequest) {
       type: "both",
       cuisine: [],
       address: "To be updated", // Placeholder
-      location: "To be updated", // Placeholder
       contactNumber: "",
       image: imageUrl,
       plans: [],
