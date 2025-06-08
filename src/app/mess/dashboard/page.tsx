@@ -40,11 +40,13 @@ import {
   CalendarDays,
   GaugeCircle,
   Timer,
+  TrendingUp,
 } from "lucide-react";
 import { StatsCard } from "@/components/comman/statsCard";
 import { PlanDistributionCard } from "@/components/comman/PlanDistributionCard";
 import { SubscriptionTrendChart } from "@/components/comman/SubscriptionTrendChart";
 import { SubscriptionStatusChart } from "@/components/comman/SubscriptionStatusChart";
+import { SentimentCard } from "@/components/comman/SentimentCard";
 const COLORS = ['#f97316', '#34d399', '#60a5fa', '#facc15', '#f87171'];
 
 
