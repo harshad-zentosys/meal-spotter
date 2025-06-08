@@ -465,7 +465,7 @@ export default function MessDashboardPage() {
             bgColor="bg-orange-100"
           />
 
-          <StatsCard
+          {/* <StatsCard
             title="Expired Subscriptions"
             value={stats.expiredSubscriptions}
             subtitle={
@@ -477,9 +477,9 @@ export default function MessDashboardPage() {
             }
             icon={<AlertTriangle className="h-4 w-4 text-muted-foreground" />}
             bgColor="bg-red-100"
-          />
+          /> */}
 
-          <StatsCard
+          {/* <StatsCard
             title="Cancelled Subscriptions"
             value={stats.cancelledSubscriptions}
             subtitle={
@@ -491,9 +491,9 @@ export default function MessDashboardPage() {
             }
             icon={<XCircle className="h-4 w-4 text-muted-foreground" />}
             bgColor="bg-gray-200"
-          />
+          /> */}
 
-          <StatsCard
+          {/* <StatsCard
             title="Upcoming Subscriptions"
             value={stats.upcomingSubscriptions}
             subtitle={
@@ -505,7 +505,7 @@ export default function MessDashboardPage() {
             }
             icon={<Clock className="h-4 w-4 text-muted-foreground" />}
             bgColor="bg-blue-100"
-          />
+          /> */}
 
           <StatsCard
             title="New Subscriptions This Month"
